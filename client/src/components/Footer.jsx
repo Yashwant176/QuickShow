@@ -10,7 +10,7 @@ const Footer = () => {
         <div className="md:max-w-96">
           <img
             alt=""
-            class="h-11"
+            className="h-11"
             src={assets.logo}
           />
           <p className="mt-6 text-sm">

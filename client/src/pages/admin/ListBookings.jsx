@@ -1,21 +1,35 @@
 import React, { useEffect, useState } from 'react'
-import { dummyBookingData } from '../../assets/assets'
 import Loading from '../../components/Loading'
 import Title from '../../components/admin/Title'
 import { dateFormat } from '../../lib/dateFormat'
+import { useAppContext } from '../../context/AppContext'
 
 const ListBookings = () => {
   const currency = import.meta.env.VITE_CURRENCY  
+  const { axios, getToken, user } = useAppContext()
+  
   const [bookings, setBookings] = useState([])
   const [loading, setLoading] = useState(true)
 
-  const getAllBookings=async()=>{
-    setBookings(dummyBookingData)
-    setLoading(false)
+  const getAllBookings = async () => {
+    try {
+      const { data } = await axios.get('/api/admin/all-bookings', {
+        headers: { Authorization: `Bearer ${await getToken()}` }
+      })
+      if (data.success) setBookings(data.bookings)
+      setLoading(false)
+    } catch (error) {
+      console.error(error)
+      setLoading(false)
+    }
   }
-  useEffect(()=>{
-    getAllBookings()
-  },[])
+
+  useEffect(() => {
+    if (user) {
+      getAllBookings()
+    }
+  }, [user])
+
   return !loading ? (
     <>
       <Title text1="List" text2="Bookings" />
@@ -24,19 +38,21 @@ const ListBookings = () => {
           <thead>
             <tr className='bg-primary/20 text-left text-white'>
               <th className='p-2 font-medium pl-5'>User Name</th>
-              <th className='p-2 font-medium '>Movie Name</th>
-              <th className='p-2 font-medium '>Show Time</th>
-              <th className='p-2 font-medium '>Seats</th>
-              <th className='p-2 font-medium '>Amount</th>
+              <th className='p-2 font-medium'>Movie Name</th>
+              <th className='p-2 font-medium'>Show Time</th>
+              <th className='p-2 font-medium'>Seats</th>
+              <th className='p-2 font-medium'>Amount</th>
             </tr>
           </thead>
           <tbody className='text-sm font-light'>
-            {bookings.map((item,index)=>(
+            {bookings.map((item, index) => (
               <tr key={index} className='border-b border-primary/20 bg-primary/5 even:bg-primary/10'>
-                <td className='p-2 min-w-45 pl-5'>{item.user.name}</td>
-                <td className='p-2'>{item.show.movie.title}</td>
-                <td className='p-2'>{dateFormat(item.show.showDateTime)}</td>
-                <td className='p-2'>{Object.keys(item.bookedSeats).map(seat => item.bookedSeats[seat]).join(", ")}</td>
+                <td className='p-2 min-w-45 pl-5'>{item.user?.name}</td>
+                <td className='p-2'>{item.show?.movie?.title}</td>
+                <td className='p-2'>{dateFormat(item.show?.showDateTime)}</td>
+                <td className='p-2'>
+                  {Object.keys(item.bookedSeats || {}).map(seat => item.bookedSeats[seat]).join(", ")}
+                </td>
                 <td className='p-2'>{currency}{item.amount}</td>
               </tr>
             ))}
@@ -44,7 +60,7 @@ const ListBookings = () => {
         </table>
       </div>
     </>
-  ) : <Loading/>
+  ) : <Loading />
 }
 
 export default ListBookings
