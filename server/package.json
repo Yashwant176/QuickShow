@@ -7,20 +7,22 @@
     "server": "nodemon server.js",
     "start": "node server.js"
   },
+  "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "@clerk/express": "^1.7.42",
-    "axios": "^1.12.2",
-    "cloudinary": "^2.8.0",
+    "@clerk/express": "^1.7.1",
+    "axios": "^1.10.0",
+    "cloudinary": "^2.7.0",
     "cors": "^2.8.5",
-    "dotenv": "^17.2.3",
+    "dotenv": "^16.5.0",
     "express": "^5.1.0",
-    "inngest": "^3.44.3",
-    "mongoose": "^8.19.2",
-    "stripe": "^19.1.0",
-    "svix": "^1.80.0"
+    "inngest": "^3.39.2",
+    "mongoose": "^8.16.0",
+    "nodemailer": "^7.0.4",
+    "stripe": "^18.3.0",
+    "svix": "^1.68.0"
   },
   "devDependencies": {
     "nodemon": "^3.1.10"

@@ -1,29 +1,19 @@
 import Booking from "../models/Booking.js";
 import Show from "../models/Show.js";
 import User from "../models/User.js";
-import Movie from "../models/Movie.js";
 
+// API to check if user is an admin
 export const isAdmin = async (req, res) => {
   res.json({ success: true, isAdmin: true });
 };
 
+// API to get dashboard data
 export const getDashboardData = async (req, res) => {
   try {
     const bookings = await Booking.find({ isPaid: true });
-
-    // ✅ Fetch all upcoming shows
-    const shows = await Show.find({ showDateTime: { $gte: new Date() } });
-
-    // ✅ Manually attach movie info (since movie is a string, not ObjectId)
-    const activeShows = await Promise.all(
-      shows.map(async (show) => {
-        const movie = await Movie.findById(show.movie);
-        return {
-          ...show.toObject(),
-          movie,
-        };
-      })
-    );
+    const activeShows = await Show.find({
+      showDateTime: { $gte: new Date() },
+    }).populate("movie");
 
     const totalUser = await User.countDocuments();
 
@@ -36,57 +26,39 @@ export const getDashboardData = async (req, res) => {
 
     res.json({ success: true, dashboardData });
   } catch (error) {
-    console.log(error);
+    console.error(error);
     res.json({ success: false, message: error.message });
   }
 };
 
+// API to get all shows
 export const getAllShows = async (req, res) => {
   try {
-    const shows = await Show.find({ showDateTime: { $gte: new Date() } });
+    const shows = await Show.find({ showDateTime: { $gte: new Date() } })
+      .populate("movie")
+      .sort({ showDateTime: 1 });
 
-    // ✅ Attach movie manually again
-    const showsWithMovies = await Promise.all(
-      shows.map(async (show) => {
-        const movie = await Movie.findById(show.movie);
-        return {
-          ...show.toObject(),
-          movie,
-        };
-      })
-    );
-
-    res.json({ success: true, shows: showsWithMovies });
+    res.json({ success: true, shows });
   } catch (error) {
-    console.log(error);
+    console.error(error);
     res.json({ success: false, message: error.message });
   }
 };
 
+// API to get all bookings
 export const getAllBookings = async (req, res) => {
   try {
     const bookings = await Booking.find({})
       .populate("user")
       .populate({
         path: "show",
+        populate: { path: "movie" },
       })
       .sort({ createdAt: -1 });
 
-    // ✅ Add movie manually to each booking’s show
-    const bookingsWithMovies = await Promise.all(
-      bookings.map(async (booking) => {
-        if (booking.show) {
-          const movie = await Movie.findById(booking.show.movie);
-          booking = booking.toObject();
-          booking.show.movie = movie;
-        }
-        return booking;
-      })
-    );
-
-    res.json({ success: true, bookings: bookingsWithMovies });
+    res.json({ success: true, bookings });
   } catch (error) {
-    console.log(error);
+    console.error(error);
     res.json({ success: false, message: error.message });
   }
 };
