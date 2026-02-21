@@ -184,5 +184,4 @@ For any support or queries:
 💻 GitHub: @Yashwant176
 🌐 Live: (https://quickshow-puce-zeta.vercel.app/)
 
-Made with ❤️ by Yashwant Kumar
-EOF
+Made with ❤️ by K Yashwant Kumar
